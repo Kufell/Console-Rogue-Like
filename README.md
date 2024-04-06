@@ -2,7 +2,7 @@
 
 Szkelet gry Rogue-Like/RPG z podstawami walki oraz tablicą wyników.
 
-### Dependencies
+### Wymagania
 
 *  Kompilator C++
 *  IDE
