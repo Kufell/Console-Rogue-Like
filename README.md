@@ -2,8 +2,6 @@
 
 Szkelet gry Rogue-Like/RPG z podstawami walki oraz tablicą wyników.
 
-## Sekcja startowa
-
 ### Dependencies
 
 *  Kompilator C++
