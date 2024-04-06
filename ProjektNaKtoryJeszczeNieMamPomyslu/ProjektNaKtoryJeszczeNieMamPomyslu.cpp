@@ -10,6 +10,7 @@
 
 class Enemy;
 
+//Odpowiedzialne za gracza
 class Character {
 private:
     std::string name;
@@ -91,66 +92,68 @@ public:
             emptyVials++;
             healingVials--;
             std::cout << "You decide to heal!\n";
-            int restoredHealth = static_cast<int>(0.35 * maxHealth); // Restore 35% of maximum health
+            int restoredHealth = static_cast<int>(0.35 * maxHealth); 
             increaseHealth(restoredHealth);
             if (health > maxHealth) {
                 health = maxHealth;
             }
-            std::cout << "You regain " << restoredHealth << " health!\n";
+            std::cout << "Odzyskujesz " << restoredHealth << " HP!\n";
         } else {
-            std::cout << "You don't have any healing vials left!\n";
+            std::cout << "Nie masz ju¿ ¿adnej fiolki lecz¹cej...\n";
         }
     }
 
     void run() {
-        std::cout << "You decide to run away!\n";
-        int penalty = static_cast<int>(0.2 * gold); // Calculate 20% penalty
-        gold -= penalty; // Deduct penalty from player's gold
-        std::cout << "You lose " << penalty << " gold as a penalty for running away.\n";
+        std::cout << "Decydujesz siê na ucieczkê...\n";
+        int penalty = static_cast<int>(0.2 * gold); 
+        gold -= penalty;
+        std::cout << "...Uciekaj¹c w pop³ochu " << penalty << " monet wypad³o ci z kieszeni.\n";
     }
 
     void resetGuarding() {
         isGuardUp = false;
     }
 
-    void playerRewards(); // Declaration
+    void playerRewards();
     void setHealth(int newHealth) { health = newHealth; }
 };
 
+//Nagrody po walce
 void Character::playerRewards() {
-    std::cout << "Choose your reward:\n";
-    std::cout << "1. Sharpening stone (Increase attack)\n";
-    std::cout << "2. Refill healing vial (" << emptyVials << " empty vials left\n";
-    std::cout << "3. Grab additional empty vial\n";
-    std::cout << "4. No thanks\n";
-    std::cout << "Enter your choice: ";
+    std::cout << "Wybierz nagrodê!\n";
+    std::cout << "Kamieñ szlifierski (+2 obra¿enia)\n";
+    std::cout << "2. Nape³ni³ pust¹ fiolkê (Iloœæ fiolek: " << emptyVials << ")\n";
+    std::cout << "3. WeŸ dodatkow¹ pust¹ fiolkê\n";
+    std::cout << "4. Poszukaj jeszcze trochê z³ota\n";
+    std::cout << "Twój wybór: ";
 
     int choice;
     std::cin >> choice;
     int goldBonus = 10;
     switch(choice) {
         case 1:
-            increaseAttack(2); // Example: Increase attack by 2 points
-            std::cout << "You sharpen your weapon. Attack increased!\n";
+            increaseAttack(2); 
+            std::cout << "Naostrzy³eœ swój miecz, wzmacniaj¹c jej obra¿enia!\n";
             break;
         case 2:
             refillHealingVials();
-            std::cout << "You refill a healing vial!\n";
+            std::cout << "Nape³ni³eœ fiolkê lecz¹c¹!\n";
             break;
         case 3:
             getNewVial();
-            std::cout << "You grab an additional empty vial!\n";
+            std::cout << "Wzi¹³eœ dodatkow¹ fiolkê lecz¹c¹\n";
             break;
         case 4:
             addGold(goldBonus);
-            std::cout << "You receive " << goldBonus << " extra gold!\n";
+            std::cout << "Zamiast u³atwieñ do walki szukasz garstki z³ota... " << goldBonus << " monet trafi³o do twojej kieszeni!\n";
             break;
         default:
-            std::cout << "Invalid choice! No reward taken.\n";
+            std::cout << "Nieprawid³owy wybór! Nie bierzesz nic...\n";
             break;
     }
 }
 
+//Odpowiedzialne za przeciwników
 class Enemy {
 private:
     std::string name;
@@ -179,7 +182,7 @@ public:
         {
             damage = attack * player.guardReduce();
         }
-        std::cout << "The " << name << " attacks you and deals " << damage << " damage!\n";
+        std::cout << name << " atakuje zadaj¹c " << damage << " obra¿eñ!\n";
         player.reduceHealth(damage);
     }
 
@@ -189,35 +192,41 @@ public:
     void addDummy(int val){dummyCounter += val;}
     void damageUp(int val){attack += val;}
 };
+
+//Pijawka
 class Leech : public Enemy {
 public:
-    Leech() : Enemy("Leech", 20, 4, 8) {}
+    Leech() : Enemy("Pijawka", 20, 4, 8) {}
 
+    //Pijawka leczy siê z obra¿eñ
     void attackPlayer(Character& player) override {
         int damage = getAttack();
-        std::cout << "The " << getName() << " attacks you and deals " << damage << " damage, but it heals itself!\n";
+        std::cout << getName() << " wysysa z ciebie " << damage << " HP, leczy siê przez to o "<< damage / 2 << " HP!\n";
         player.reduceHealth(damage);
         this->reduceHealth(- damage / 2);
     }
 };
+//Wœciek³y trup
 class Furiosa : public Enemy {
 public:
-    Furiosa() : Enemy("Furiosa", 45, 1, 12) {}
+    Furiosa() : Enemy("Wœciek³y trup", 45, 1, 12) {}
 
+    //Co drug¹ turê zwiêksza obra¿enia
     void attackPlayer(Character& player) override {
         int damage = getAttack();
-        std::cout << "The " << getName() << " attacks you and deals " << damage << "\n";
+        std::cout << getName() << " atakuje zadaj¹c " << damage << " HP!\n";
         player.reduceHealth(damage);
         addDummy(1);
         if(getDummy() >= 2)
         {
-            std::cout << "It also amps up damage!";
+            std::cout << "Wœciek³oœæ przek³ada siê na wiêksze obra¿enia...";
             this->damageUp(1);
             this->addDummy(-getDummy());
         }
     }
 };
 
+//Ca³a logika gry, zosta³o kilka œmieci, gdy projekt by³ trochê bardziej ambitny
 class Game {
 private:
     std::vector<Enemy*> encounteredEnemies;
@@ -231,8 +240,8 @@ public:
     {
         allEnemies.push_back((new Leech));
         allEnemies.push_back((new Furiosa));
-        allEnemies.push_back(new Enemy("Ghoul", 30, 2, 10));
-        allEnemies.push_back(new Enemy("Skeleton", 20, 1, 5));
+        allEnemies.push_back(new Enemy("Ghul", 30, 2, 10));
+        allEnemies.push_back(new Enemy("Szkielet", 20, 1, 5));
         allEnemies.push_back(new Enemy("Goblin", 25, 2, 7));
     }
 
@@ -258,46 +267,44 @@ public:
 void Game::startMenu() {
     int choice;
     while (true) {
-        std::cout << "=== Main Menu ===\n";
-        std::cout << "1. Play\n";
-        std::cout << "2. How to Play\n";
-        std::cout << "3. Leaderboard\n";
-        std::cout << "4. Quit\n";
-        std::cout << "Choose an option: ";
+        std::cout << "=== Menu G³ówne ===\n";
+        std::cout << "1. Zagraj\n";
+        std::cout << "2. Jak graæ\n";
+        std::cout << "3. Tablica wyników\n";
+        std::cout << "4. WyjdŸ\n";
+        std::cout << "Wybierz opcjê: ";
         std::cin >> choice;
 
         switch(choice) {
             case 1: {
-                std::cout << "\nStarting the game...\n";
+                std::cout << "\nPrzygoda siê zaczyna...\n";
                 Game newGame;
                 newGame.play();
                 break;
             }
             case 2:
                 howToPlay();
-                std::cout << "Returning to main menu...\n";
                 break;
             case 3:
                 leaderboard();
-                std::cout << "Returning to main menu...\n";
                 break;
             case 4:
-                std::cout << "Quitting the game...\n";
+                std::cout << "Do zobaczenia!\n";
                 return;
             default:
-                std::cout << "Invalid choice! Please try again.\n";
+                std::cout << "Nieprawid³owy wybór!\n";
                 break;
         }
     }
 }
 
 void Game::play() {
-    srand(time(NULL)); // Seed for random number generation
+    srand(time(NULL));
     std::string playerName;
     std::cout << "Enter your name: ";
     std::cin >> playerName;
-    Character player(playerName, 20, 5, 2, 0); // Character creation with the provided name
-    this->player = player; // Set the player
+    Character player(playerName, 20, 5, 2, 0); 
+    this->player = player; 
 
     std::random_shuffle(allEnemies.begin(), allEnemies.end());
 
@@ -306,14 +313,22 @@ void Game::play() {
     }
 
     if (defeatedEnemies == allEnemies.size()) {
-        std::cout << "Congratulations! You have defeated all enemies. You win!\n";
+        std::cout << "Wytêpi³eœ wszystkie potwory, prze¿y³eœ i wynios³eœ "<< player.getGold() << " z³otych monet!\n";
         saveScore();
     }
 }
 
 void Game::howToPlay() {
-    std::cout << "=== How to Play ===\n";
-    // Instructions on how to play
+    std::cout << "=== Jak graæ? ===\n";
+    std::cout << "1. Walka\nPodczas swojej tury zadecyduj czy chcesz walczyæ, broniæ siê gard¹, uleczyæ siê albo uciekaæ\n";
+    std::cout << "Walcz¹c zadajesz obra¿enia przeciwnikowi.\nBroni¹c siê redukujesz obra¿enoa od nastêpnego ataku.\n";
+    std::cout << "Lecz¹c siê zu¿ywasz fiolkê lecz¹c¹.\n Uciekaj¹c koñczysz swój przebieg.\n";
+    std::cout << "Nastêpnie przeciwnik rozpoczyna swoj¹ turê. Aby wygraæ walkê zredukuj zdrowie przeciwnika do 0.\n";
+    std::cout << "2. Wygrana walka\nPo wygranej walce mo¿esz:\nNaostrzyæ swoj¹ broñ.\nNape³niæ pust¹ fiolkê (jeœli tak¹ masz).\n";
+    std::cout << "Wzi¹æ pust¹ fiolkê.\nWzi¹æ garstkê z³ota.\n";
+    std::cout << "3. Wygrana/Przegrana\nJeœli prze¿yjesz wszystkich przeciników iloœæ z³ota jak¹ zdoby³eœ stanie siê twoim wynikiem.\n";
+    std::cout << "Jeœli uciek³eœ przed walk¹ czêœæ z³ota 'wypadnie ci z kieszeni'.\nJeœli twoja postaæ umrze twój wynik nie zostanie zapisany, przegra³eœ\n";
+    std::cout << "Pamiêtaj, ¿e czêœci¹ gry jest odkrywanie kolejnych zale¿noœci i taktyk.\nPOWODZENIA\n";
 }
 
 void Game::leaderboard() {
@@ -333,18 +348,18 @@ void Game::encounterEnemy(Enemy* enemy) {
 
 void Game::playerTurn(Enemy* enemy) {
     while (player.getHealth() > 0 && enemy->getHealth() > 0 && !gameEnded) {
-        std::cout << "It's your turn!\n";
-        std::cout << "Options:\n";
-        std::cout << "1. Fight\n";
-        std::cout << "2. Guard\n";
-        std::cout << "3. Heal";
+        std::cout << "Twoja tura!\n";
+        std::cout << "Opcje:\n";
+        std::cout << "1. Walcz\n";
+        std::cout << "2. Broñ siê\n";
+        std::cout << "3. Ulecz siê";
         if (player.getHealingVials() > 0) {
-            std::cout << " (" << player.getHealingVials() << " vials)";
+            std::cout << " (Iloœæ fiolek: " << player.getHealingVials() << ")";
         } else {
-            std::cout << " (No vials)";
+            std::cout << " (Tylko czym?...)";
         }
-        std::cout << "\n4. Run\n";
-        std::cout << "Enter your choice: ";
+        std::cout << "\n4. Uciekaj\n";
+        std::cout << "Wybierz opcjê: ";
 
         int choice;
         std::cin >> choice;
@@ -359,8 +374,10 @@ void Game::playerTurn(Enemy* enemy) {
             case 3:
                 if (player.getHealingVials() > 0) {
                     player.heal();
+                    std::cout << "Wypi³eœ ca³¹ zawartoœæ fiolki, czujesz siê trochê lepiej!\n";
+                    std::cout << "Masz aktualnie " << player.getHealth() << " HP!\n";
                 } else {
-                    std::cout << "You don't have any healing vials left!\n";
+                    std::cout << "Próbujesz znaleœæ pe³n¹ fiolkê, ale ¿adnej nie masz...\n";
                 }
                 break;
             case 4:
@@ -368,7 +385,7 @@ void Game::playerTurn(Enemy* enemy) {
                 gameEnded = true;
                 break;
             default:
-                std::cout << "Invalid choice! Please try again.\n";
+                std::cout << "Nieprawid³owy wybór!\n";
                 break;
         }
 
@@ -378,20 +395,20 @@ void Game::playerTurn(Enemy* enemy) {
             enemy->attackPlayer(player);   
         }
         if (player.getHealth() <= 0) {
-            std::cout << "You have been defeated!\n";
+            std::cout << "Zosta³eœ pokonany...\n";
             gameEnded = true;
             return;
         }
-        std::cout << "Your current health is " << player.getHealth() << "!\n";
+        std::cout << "Masz aktualnie " << player.getHealth() << " HP!\n";
         player.resetGuarding();
     }
 }
 
 void Game::fight(Enemy* enemy) {
     int playerDamage = player.getAttack();
-    std::cout << "You attack the " << enemy->getName() << "!\n";
+    std::cout << "Decydujesz siê na atak!\n";
     enemy->reduceHealth(playerDamage);
-    std::cout << "Enemy " << enemy->getName() << "'s health: " << enemy->getHealth() << "\n";
+    std::cout << "Zadajesz " << enemy->getHealth() << " HP!\n";
 
     if (enemy->getHealth() <= 0) {
         defeatedEnemies++;
@@ -403,7 +420,7 @@ void Game::fight(Enemy* enemy) {
 }
 
 void Game::postBattleLogic(Enemy* enemy) {
-    std::cout << "You defeated the " << enemy->getName() << "!\n";
+    std::cout << "Zwyciêstwo! " << enemy->getName() << " pada na ziemiê!\n";
     player.addGold(enemy->getGoldValue());
     player.playerRewards();
 
@@ -412,7 +429,7 @@ void Game::postBattleLogic(Enemy* enemy) {
     if (player.getHealth() > player.getMaxHealth()) {
         player.setHealth(player.getMaxHealth());
     }
-    std::cout << "You take a breather and regain " << restoredHealth << " health!\n";
+    std::cout << "Czujesz, ¿e jest trochê bezpiecznie, bierzesz chwilê przerwy...\n" << restoredHealth << " HP zosta³o odnowione!\n";
 }
 
 void Game::saveScore() {
@@ -440,19 +457,17 @@ void Game::displayLeaderboard() {
         }
         leaderboardFile.close();
 
-        // Sort scores based on the score (descending order)
+        //Sortowannie wyników
         std::sort(scores.begin(), scores.end(), [](const auto& a, const auto& b) {
             return a.second > b.second;
         });
 
-        // Display top 20 scores
-        std::cout << "=== Leaderboard ===\n";
-        std::cout << "Rank\tPlayer\t\tScore\n";
+        // Wyœwietlanie wyników
+        std::cout << "=== Tablica Wyników ===\n";
+        std::cout << "Miejsce\tGracz\t\tZ³oto\n";
         int rank = 1;
         for (const auto& score : scores) {
             std::cout << rank << "\t" << std::left << std::setw(12) << score.first << "\t" << score.second << "\n";
-            if (rank == 20) // Display only top 20 scores
-                break;
             rank++;
         }
     } else {
