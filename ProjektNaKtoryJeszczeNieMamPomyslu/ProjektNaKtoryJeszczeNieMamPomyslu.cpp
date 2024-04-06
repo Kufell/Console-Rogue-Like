@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <sstream>
 
+
 class Enemy;
 
 //Odpowiedzialne za gracza
